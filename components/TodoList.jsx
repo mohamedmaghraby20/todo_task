@@ -1,38 +1,30 @@
 "use client"
-
 import useTodoStore from '@/store/todoStore';
 import TodoItem from './TodoItem';
+import EmptyState from './EmptyState';
+import LoadingSpinner from './LoadingSpinner';
 
-const TodoList = () => {
+const TodoList = ({ onCreateTask }) => {
   const { todos, loading, error } = useTodoStore();
 
   if (loading && todos.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">Loading tasks...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error: {error}</p>
+        <p className="text-danger-600 text-sm">Error: {error}</p>
       </div>
     );
   }
 
   if (todos.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-600">No tasks yet. Create your first task above!</p>
-      </div>
-    );
+    return <EmptyState onCreateTask={onCreateTask} />;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {todos.map(todo => (
         <TodoItem key={todo.id} todo={todo} />
       ))}

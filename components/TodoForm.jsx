@@ -1,101 +1,99 @@
 "use client"
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { todoSchema } from '@/lib/validations';
 import useTodoStore from '@/store/todoStore';
-import { useState } from 'react';
+import { Input } from './ui/input';
+import { Select } from './ui/select';
+import { Button } from './ui/button';
+import { Textarea } from './ui/textarea';
 
 const TodoForm = ({ todo, onCancel, isEditing = false }) => {
-  const [formData, setFormData] = useState({
-    title: todo?.title || '',
-    description: todo?.description || '',
-    status: todo?.status || 'not started'
+  const { addTodo, updateTodo, loading } = useTodoStore();
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm({
+    resolver: zodResolver(todoSchema),
+    defaultValues: {
+      title: todo?.title || '',
+      description: todo?.description || '',
+      status: todo?.status || 'not started'
+    }
   });
 
-  const { addTodo, updateTodo, loading } = useTodoStore();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.title.trim()) return;
-
+  const onSubmit = async (data) => {
     try {
       if (isEditing) {
-        await updateTodo({ ...todo, ...formData });
+        await updateTodo({ ...todo, ...data });
       } else {
-        await addTodo(formData);
-      }
-      
-      if (!isEditing) {
-        setFormData({ title: '', description: '', status: 'not started' });
+        await addTodo(data);
+        reset();
       }
       
       if (onCancel) onCancel();
     } catch (error) {
-      // Error is handled by the store
+      // Error handled by store
     }
   };
 
-  const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <input
-          type="text"
-          name="title"
+        <Input
+          {...register('title')}
           placeholder="Task title"
-          value={formData.title}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required
+          error={errors.title}
         />
+        {errors.title && (
+          <p className="mt-1 text-xs text-danger-600">{errors.title.message}</p>
+        )}
       </div>
       
       <div>
-        <textarea
-          name="description"
+        <Textarea
+          {...register('description')}
           placeholder="Description (optional)"
-          value={formData.description}
-          onChange={handleChange}
-          rows="3"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          rows="2"
+          error={errors.description}
         />
+        {errors.description && (
+          <p className="mt-1 text-xs text-danger-600">{errors.description.message}</p>
+        )}
       </div>
 
       <div>
-        <select
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        <Select
+          {...register('status')}
+          error={errors.status}
         >
           <option value="not started">Not Started</option>
           <option value="in progress">In Progress</option>
           <option value="completed">Completed</option>
-        </select>
+        </Select>
       </div>
 
       <div className="flex gap-2">
-        <button
+        <Button
           type="submit"
-          disabled={loading || !formData.title.trim()}
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          disabled={loading}
+          className="flex-1"
         >
-          {loading ? 'Saving...' : (isEditing ? 'Update Task' : 'Add Task')}
-        </button>
+          {loading ? 'Saving...' : (isEditing ? 'Update' : 'Add Task')}
+        </Button>
         
         {isEditing && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={onCancel}
-            className="px-4 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
           >
             Cancel
-          </button>
+          </Button>
         )}
       </div>
     </form>
