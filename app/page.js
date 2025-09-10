@@ -27,7 +27,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Taski</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Todo Task</h1>
           </div>
           
           <p className="text-gray-600">
@@ -35,7 +35,7 @@ export default function Home() {
           </p>
           
           <p className="text-sm text-gray-500 mt-2">
-            You've got {totalCount} tasks to do
+            You have ve got {totalCount} tasks to do
           </p>
 
           {totalCount > 0 && (
