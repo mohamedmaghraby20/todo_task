@@ -1,7 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
   const apiClient = async (endpoint, options = {}) => {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `/api${endpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
